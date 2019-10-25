@@ -124,9 +124,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="glew32.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

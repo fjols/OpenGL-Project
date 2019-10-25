@@ -2,6 +2,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h> 
 #include <stdio.h>
+#include <math.h>
+#include "include/shader.h"
+
+void DoStuff();
 
 int main() {
 	GLFWwindow *window = NULL;
@@ -9,23 +13,35 @@ int main() {
 	const GLubyte *version;
 	GLuint vao;
 	GLuint vbo;
-	/* geometry to use. these are 3 xyz points (9 floats total) to make a
-		 triangle */
-	GLfloat points[] = { 0.0f, 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, -0.5f, -0.5f, 0.0f };
+
+	Shader myShader("shaders/vertex.vs", "shaders/fragment.fs");
+
+	float vertices[] = {
+		0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.5f, 0.0f,   0.0f, 0.0f, 1.0f
+	};
 
 	/* these are the strings of code for the shaders
 	the vertex shader positions each vertex point */
-	const char *vertex_shader = "#version 120\n"
-		"attribute vec3 vp;"
-		"void main () {"
-		"  gl_Position = vec4 (vp, 1.0);"
-		"}";
+	const char *vertex_shader = "#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"layout (location = 1) in vec3 aColor;\n"
+		"out vec3 ourColor;\n"
+		"void main()\n"
+		"{\n"
+		"   gl_Position = vec4(aPos, 1.0);\n"
+		"   ourColor = aColor;\n"
+		"}\0";
 	/* the fragment shader colours each fragment (pixel-sized area of the
 	triangle) */
-	const char *fragment_shader = "#version 120\n"
-		"void main () {"
-		"  gl_FragColor = vec4 (0.5, 0.0, 0.5, 1.0);"
-		"}";
+	const char *fragment_shader = "#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"in vec3 ourColor;\n"
+		"void main()\n"
+		"{\n"
+		"   FragColor = vec4(ourColor, 1.0f);\n"
+		"}\n\0";
 	/* GL shader objects for vertex and fragment shader [components] */
 	GLuint vs, fs;
 	/* GL shader programme object [combined, to link] */
@@ -66,7 +82,7 @@ int main() {
 		 data on the graphics adapter's memory. in our case - the vertex points */
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), points, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	/* the vertex array object (VAO) is a little descriptor that defines which
 	data from vertex buffer objects should be used as input variables to vertex
@@ -82,6 +98,7 @@ int main() {
 		 then create an executable shader 'program' and attach both of the compiled
 		 shaders. we link this, which matches the outputs of the vertex shader to
 		 the inputs of the fragment shader, etc. and it is then ready to use */
+	/*
 	vs = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs, 1, &vertex_shader, NULL);
 	glCompileShader(vs);
@@ -92,7 +109,7 @@ int main() {
 	glAttachShader(shader_programme, fs);
 	glAttachShader(shader_programme, vs);
 	glLinkProgram(shader_programme);
-
+	*/
 	/* this loop clears the drawing surface, then draws the geometry described
 		 by the VAO onto the drawing surface. we 'poll events' to see if the window
 		 was closed, etc. finally, we 'swap the buffers' which displays our drawing
@@ -104,7 +121,10 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
 		// wipe the drawing surface clear
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(shader_programme);
+	
+		DoStuff();
+
+		myShader.use();
 		glBindVertexArray(vao);
 		// draw points 0-3 from the currently bound VAO with current shader
 		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -117,4 +137,14 @@ int main() {
 	// close GL context and any other GLFW resources
 	glfwTerminate();
 	return 0;
+}
+
+void DoStuff()
+{
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 }

@@ -72,7 +72,7 @@ public:
 	}
 
 	virtual void OnResize(int w, int h)
-   {
+    {
       if(h == 0) h = 1;
 	   float ratio = 1.0f * (float)w / (float)h;
 
@@ -87,7 +87,7 @@ public:
 	   gluLookAt(0.0f,0.0f,4.0f, 
 		          0.0,0.0,-1.0,
 			       0.0f,1.0f,0.0f);
-   }
+    }
 	virtual void OnClose(void){}
 	virtual void OnMouseDown(int button, int x, int y) {}    
 	virtual void OnMouseUp(int button, int x, int y) {}
